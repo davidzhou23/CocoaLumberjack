@@ -535,11 +535,33 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     return self;
 }
 
+- (NSString *)logFlagToString:(DDLogFlag) lflag {
+    NSString *result = nil;
+    switch (lflag) {
+        case DDLogFlagError:
+            result = @"ERROR";
+            break;
+        case DDLogFlagWarning:
+            result = @"WARNING";
+            break;
+        case DDLogFlagInfo:
+            result = @"INFO";
+            break;
+        case DDLogFlagDebug:
+            result = @"DEBUG";
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
 - (NSString *)formatLogMessage:(DDLogMessage *)logMessage {
     NSString *dateAndTime = [_dateFormatter stringFromDate:(logMessage->_timestamp)];
-
-    return [NSString stringWithFormat:@"%@  %@", dateAndTime, logMessage->_message];
+    NSString *flag = [self logFlagToString:logMessage.flag];
+    return [NSString stringWithFormat:@"%@[%@]: %@", dateAndTime, flag, logMessage->_message];
 }
+
 
 @end
 
