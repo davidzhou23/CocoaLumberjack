@@ -934,7 +934,19 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             }
 
         #endif
-
+            //TODO: _currentLogFileInfo 为空就会创建新文件
+            //TODO: 判断现有的文件时间和创建时间对象是否在同一天，否则创建新的日志文件
+            NSRange range = [mostRecentLogFileInfo.fileName rangeOfString:@" "];
+            if (range.location != NSNotFound) {
+                NSString *dateString = [mostRecentLogFileInfo.fileName substringFromIndex:range.location];
+                dateString = [dateString substringToIndex:11];
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                dateFormatter.dateFormat = @"yyyy-mm-dd";
+                NSString *dateNow = [dateFormatter stringFromDate:[NSDate date]];
+                if (![dateString isEqualToString:dateNow]) {
+                    goto createNewFile;
+                }
+            }
             if (!_doNotReuseLogFiles && !mostRecentLogFileInfo.isArchived && !shouldArchiveMostRecent) {
                 NSLogVerbose(@"DDFileLogger: Resuming logging with file %@", mostRecentLogFileInfo.fileName);
 
@@ -949,7 +961,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
                 }
             }
         }
-
+    createNewFile:
         if (_currentLogFileInfo == nil) {
             NSString *currentLogFilePath = [logFileManager createNewLogFile];
 
