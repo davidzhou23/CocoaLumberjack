@@ -934,14 +934,16 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             }
 
         #endif
-            //TODO: _currentLogFileInfo 为空就会创建新文件
-            //TODO: 判断现有的文件时间和创建时间对象是否在同一天，否则创建新的日志文件
+            //_currentLogFileInfo 为空就会创建新文件
+            // 判断现有的文件时间和创建时间对象是否在同一天，否则创建新的日志文件
             NSRange range = [mostRecentLogFileInfo.fileName rangeOfString:@" "];
             if (range.location != NSNotFound) {
                 NSString *dateString = [mostRecentLogFileInfo.fileName substringFromIndex:range.location];
-                dateString = [dateString substringToIndex:11];
+                dateString = [dateString componentsSeparatedByString:@"--"][0];
+                dateString = [dateString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                //                dateString = [dateString substringToIndex:11];
                 NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                dateFormatter.dateFormat = @"yyyy-mm-dd";
+                dateFormatter.dateFormat = @"yyyy-MM-dd";
                 NSString *dateNow = [dateFormatter stringFromDate:[NSDate date]];
                 if (![dateString isEqualToString:dateNow]) {
                     goto createNewFile;
